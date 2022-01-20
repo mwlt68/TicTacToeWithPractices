@@ -45,6 +45,15 @@ function Square(props){
     }
   }
   
+
+  function MoveButtonText(props) {
+    if (props.isBold) {
+      return <b>{props.desc2}</b>
+      
+    }
+    return <div>{props.desc2}</div>;
+  }
+
   class Game extends React.Component {
 
     constructor(props){
@@ -57,7 +66,7 @@ function Square(props){
           }
         ],
         lastClickedIndexes:[],
-        xIsNext:true
+        xIsNext:true,
       }
     }
 
@@ -88,9 +97,10 @@ function Square(props){
           }]),
           stepNumber:history.length,
           xIsNext:!this.state.xIsNext,
-          lastClickedIndexes: [...this.state.lastClickedIndexes, i]
+          lastClickedIndexes: [...this.state.lastClickedIndexes, i],
         });
     }
+
 
 
     render() {
@@ -107,7 +117,10 @@ function Square(props){
         return (
           <li key={move}>
             <button onClick={()=> this.jumpTo(move)}>
-              {desc}
+              <MoveButtonText
+               isBold={this.state.stepNumber===move}
+               desc2={desc}
+              />
             </button>
           </li>
         );
