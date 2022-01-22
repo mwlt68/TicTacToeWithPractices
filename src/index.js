@@ -20,7 +20,6 @@ function Square(props){
         onClick={()=>this.props.onClick(i)}
         key={i}
         />
-        
     }
 
     renderBoardRow(rowIndex){
@@ -64,7 +63,9 @@ function Square(props){
     constructor(props){
       super(props);
       this.state={
+        stepNumberBeforeClick:0,
         stepNumber:0,
+        orderByAsc:true,
         history:[
           {
             squares:Array(9).fill(null)
@@ -73,6 +74,7 @@ function Square(props){
         lastClickedIndexes:[],
         xIsNext:true,
       }
+      this.orderByOnClick = this.orderByOnClick.bind(this);
     }
 
     jumpTo(step){
@@ -83,7 +85,6 @@ function Square(props){
     }
 
     handleClick(i){
-      console.log(i)
       const history= this.state.history.slice(0,this.state.stepNumber+1);
       const current = history[history.length-1];
       const squares= current.squares.slice();
@@ -100,42 +101,47 @@ function Square(props){
           history:history.concat([{
             squares:squares,
           }]),
+          stepNumberBeforeClick:history.length,
           stepNumber:history.length,
           xIsNext:!this.state.xIsNext,
           lastClickedIndexes: [...this.state.lastClickedIndexes, i],
         });
     }
 
-
+    orderByOnClick(){
+      this.setState(prevState => ({
+        orderByAsc: !prevState.orderByAsc
+      }));
+    }
 
     render() {
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares);
-      const moves = history.map((step,move)=>{
-      let desc='Go to game start';
-        if(move){
-          const columnIndex = (this.state.lastClickedIndexes[move-1]) % this.props.gameSize;
-          const rowIndex= Math.floor((this.state.lastClickedIndexes[move-1]) / this.props.gameSize);
-          desc= 'Go to move #'+ move+"("+columnIndex+","+rowIndex+")";
-        }
-        return (
-          <li key={move}>
-            <button onClick={()=> this.jumpTo(move)}>
-              <MoveButtonText
-               isBold={this.state.stepNumber===move}
-               desc2={desc}
-              />
-            </button>
-          </li>
-        );
-      });
+      const moves= history.map((step,move)=>{
+        let moveVal=this.state.orderByAsc ? move : this.state.stepNumberBeforeClick-move;
+        let desc='Go to game start';
+          if(moveVal){
+            const columnIndex = (this.state.lastClickedIndexes[moveVal-1]) % this.props.gameSize;
+            const rowIndex= Math.floor((this.state.lastClickedIndexes[moveVal-1]) / this.props.gameSize);
+            desc= 'Go to move #'+ moveVal+"("+columnIndex+","+rowIndex+")";
+          }
+          return (
+            <li key={moveVal}>
+              <button onClick={()=> this.jumpTo(moveVal)}>
+                <MoveButtonText
+                 isBold={this.state.stepNumber===moveVal}
+                 desc2={desc}
+                />
+              </button>
+            </li>
+          );
+        });
       let status;
       if(winner)
         status="Winner: "+winner;
       else
-        status = 'Next player: '+(this.setState.xIsNext ? 'X': 'O');
-      
+        status = 'Next player: '+(this.state.xIsNext ? 'X': 'O');
 
       return (
         <div className="game">
@@ -147,6 +153,10 @@ function Square(props){
             />
           </div>
           <div className="game-info">
+            <button
+              onClick={this.orderByOnClick}
+              >
+                Order By {this.state.orderByAsc ? "ASC": "DSC"}</button>
             <div>{status}</div>
             <ol>{moves}</ol>
           </div>
