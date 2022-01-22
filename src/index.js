@@ -15,31 +15,36 @@ function Square(props){
   class Board extends React.Component {
 
     renderSquare(i) {
-      return <Square 
+      return <Square
         value={this.props.squares[i]} 
-        onClick={()=>this.props.onClick(i)}/>
+        onClick={()=>this.props.onClick(i)}
+        key={i}
+        />
         
     }
 
+    renderBoardRow(rowIndex){
+      let boardSquares=[];
+      for (let index = 0; index < this.props.gameSize; index++) {
+        const square = this.renderSquare((rowIndex*this.props.gameSize)+index);
+        boardSquares.push(square);
+      }
+      return(
+        <div className="board-row" key={rowIndex}>
+        {boardSquares}
+        </div>
+      );
+    }
 
     render() {
+      let boardRows=[];
+      for (let index = 0; index < this.props.gameSize; index++) {
+        const boardRow = this.renderBoardRow(index);
+        boardRows.push(boardRow);
+      }
       return (
         <div>
-          <div className="board-row">
-            {this.renderSquare(0)}
-            {this.renderSquare(1)}
-            {this.renderSquare(2)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(3)}
-            {this.renderSquare(4)}
-            {this.renderSquare(5)}
-          </div>
-          <div className="board-row">
-            {this.renderSquare(6)}
-            {this.renderSquare(7)}
-            {this.renderSquare(8)}
-          </div>
+          {boardRows}
         </div>
       );
     }
@@ -110,8 +115,8 @@ function Square(props){
       const moves = history.map((step,move)=>{
       let desc='Go to game start';
         if(move){
-          const columnIndex = (this.state.lastClickedIndexes[move-1]) % 3;
-          const rowIndex= Math.floor((this.state.lastClickedIndexes[move-1]) / 3);
+          const columnIndex = (this.state.lastClickedIndexes[move-1]) % this.props.gameSize;
+          const rowIndex= Math.floor((this.state.lastClickedIndexes[move-1]) / this.props.gameSize);
           desc= 'Go to move #'+ move+"("+columnIndex+","+rowIndex+")";
         }
         return (
@@ -138,6 +143,7 @@ function Square(props){
             <Board 
               squares={current.squares}
               onClick={(i)=>this.handleClick(i)}
+              gameSize={this.props.gameSize}
             />
           </div>
           <div className="game-info">
@@ -153,7 +159,9 @@ function Square(props){
   // ========================================
   
   ReactDOM.render(
-    <Game/>,
+    <Game
+      gameSize={3}
+    />,
     document.getElementById('root')
   );
 
