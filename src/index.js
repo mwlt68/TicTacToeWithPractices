@@ -143,8 +143,11 @@ import './index.css';
           );
         });
       let status;
+      const nullSquareCount=current.squares.filter(x=> !x).length;
       if(winner)
-        status="Winner: "+winner;
+        status="Winner: "+ winner;
+      else if (nullSquareCount===0)
+        status = "Game ended in a draw"
       else
         status = 'Next player: '+(this.state.xIsNext ? 'X': 'O');
       const winnerIndexes = getWinnerIndexes(current.squares);
